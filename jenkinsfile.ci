@@ -1,35 +1,38 @@
 // Jenkinsfile.CI
 pipeline {
-    agent any
+    agent any // Agent must have .NET SDK and write access to /opt/dotnet_builds/
 
     stages {
-        stage('Checkout, Build, Test, Publish') {
+        stage('Build, Test, and Publish') {
             steps {
-                // Checkout the source code from SCM
-                //checkout scm
-                // Restore dependencies, build, test, and publish in one stage
-                sh 'dotnet publish -c Release -o published'
+                checkout scm
+                // Ensure the output directory is clean
+                sh 'rm -rf dotnet_published' 
+                // Publish the build artifacts into the 'dotnet_published' directory
+                sh 'dotnet publish -c Release -o dotnet_published'
                 sh 'dotnet test --no-build'
-            }
-        }
-
-        stage('Archive Artifacts') {
-            steps {
-                // Archive the published output directory
-                archiveArtifacts artifacts: 'published/**/*', fingerprint: true
             }
         }
     }
     
     post {
         success {
-            // Trigger the CD job upon success, passing the current build number
-            // 'env.BUILD_NUMBER' is a built-in Jenkins environment variable
-            //build job: 'Your_CD_Job_Name', parameters: [string(name: 'BUILD_ID_TO_DEPLOY', value: "${env.BUILD_NUMBER}")]
-            echo "CI pipeline successfully executed"
-        }
-        failure{
-            echo "CI pipeline failed"
+            script {
+                def buildDir = "/opt/dotnet_builds/build_${env.BUILD_NUMBER}"
+                echo "Storing build artifacts in: ${buildDir}"
+                
+                // Create the target directory
+                sh "mkdir -p ${buildDir}"
+                
+                // Copy artifacts from Jenkins workspace to the versioned directory
+                // We copy the contents of 'published'
+                sh "cp -r published/* ${buildDir}/"
+                
+                echo "Artifacts copied to external directory. Triggering CD job."
+
+                // Trigger the CD job, passing the build number
+                build job: 'Your_CD_Job_Name', parameters: [string(name: 'CI_BUILD_NUMBER', value: "${env.BUILD_NUMBER}")]
+            }
         }
     }
 }
