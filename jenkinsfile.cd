@@ -1,0 +1,41 @@
+// Jenkinsfile.CD
+pipeline {
+    // This agent MUST be your target Ubuntu server where /opt/ and /var/www are located
+    agent any 
+
+    parameters {
+        // Parameter to receive the build number from the CI job
+        string(name: 'CI_BUILD_NUMBER', defaultValue: '', description: 'Build number from the CI pipeline to deploy')
+    }
+
+    environment {
+        DEPLOY_DIR = '/var/www/mydotnetfolder' // The target directory for live deployment
+        // Define the source path using the parameter
+        SOURCE_BUILD_DIR = "/opt/dotnet_builds/build_${params.CI_BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Deploy Specific Build to www Directory') {
+            steps {
+                script {
+                    echo "Checking for source build directory: ${SOURCE_BUILD_DIR}"
+                    // Check if the specific build directory exists
+                    sh "test -d ${SOURCE_BUILD_DIR}" 
+
+                    echo "Deploying build number ${params.CI_BUILD_NUMBER} to ${DEPLOY_DIR}"
+                    
+                    // Ensure the deployment directory exists
+                    sh "mkdir -p ${DEPLOY_DIR}"
+
+                    // Clean the existing deployment directory
+                    sh "rm -rf ${DEPLOY_DIR}/*"
+
+                    // Copy the specific build artifacts from the versioned directory
+                    sh "cp -r ${SOURCE_BUILD_DIR}/* ${DEPLOY_DIR}/"
+
+                    echo "Deployment to ${DEPLOY_DIR} complete. You can now manually start/reload your service."
+                }
+            }
+        }
+    }
+}
