@@ -1,0 +1,35 @@
+// Jenkinsfile.CI
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout, Build, Test, Publish') {
+            steps {
+                // Checkout the source code from SCM
+                //checkout scm
+                // Restore dependencies, build, test, and publish in one stage
+                sh 'dotnet publish -c Release -o published'
+                sh 'dotnet test --no-build'
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                // Archive the published output directory
+                archiveArtifacts artifacts: 'published/**/*', fingerprint: true
+            }
+        }
+    }
+    
+    post {
+        success {
+            // Trigger the CD job upon success, passing the current build number
+            // 'env.BUILD_NUMBER' is a built-in Jenkins environment variable
+            //build job: 'Your_CD_Job_Name', parameters: [string(name: 'BUILD_ID_TO_DEPLOY', value: "${env.BUILD_NUMBER}")]
+            echo "CI pipeline successfully executed"
+        }
+        failure{
+            echo "CI pipeline failed"
+        }
+    }
+}
