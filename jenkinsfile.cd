@@ -3,15 +3,15 @@ pipeline {
     // This agent MUST be your target Ubuntu server where /opt/ and /var/www are located
     agent any 
 
-    parameters {
+    //parameters {
         // Parameter to receive the build number from the CI job
-        string(name: 'CI_BUILD_NUMBER', defaultValue: '', description: 'Build number from the CI pipeline to deploy')
-    }
+        //string(name: 'CI_BUILD_NUMBER', defaultValue: '', description: 'Build number from the CI pipeline to deploy')
+    //}
 
     environment {
         DEPLOY_DIR = '/var/www/mydotnetfolder' // The target directory for live deployment
         // Define the source path using the parameter
-        SOURCE_BUILD_DIR = "/opt/dotnet_builds/build_${params.CI_BUILD_NUMBER}"
+        SOURCE_BUILD_DIR = "/opt/dotnet_builds/build_${params.artifact_id}"
     }
 
     stages {
