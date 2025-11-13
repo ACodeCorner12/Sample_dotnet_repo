@@ -17,7 +17,11 @@ pipeline {
             steps {
                 script {
                     echo "Checking for source build directory: ${SOURCE_BUILD_DIR}"
-                    sh "test -d ${SOURCE_BUILD_DIR}" 
+                    def result = sh "test -d ${SOURCE_BUILD_DIR}" 
+                    if(result!=0){
+                        echo "build specified does not exist, try a valid build version!"
+                        exit 1
+                    }
 
                     echo "Deploying build number ${params.CI_BUILD_NUMBER} to ${DEPLOY_DIR}"
                     
