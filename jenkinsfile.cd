@@ -46,9 +46,9 @@ pipeline {
                 """,
                 to: 'anuragsaha.216009@gmail.com'
             )
-
+            echo "CD pipeline running successfully."
         }
-        echo "CD pipeline running successfully."
+        
         failure{
         emailext (
                 subject: "SUCCESS: Jenkins Build #${env.BUILD_NUMBER} (${env.JOB_NAME})",
