@@ -1,14 +1,13 @@
-// Jenkinsfile.CI
 pipeline {
-    agent any // Agent must have .NET SDK and write access to /opt/dotnet_builds/
+    agent any // check if agent has .NET SDK and write access to /opt/dotnet_builds/
 
     stages {
         stage('Build, Test, and Publish') {
             steps {
                 checkout scm
-                // Ensure the output directory is clean
+                echo "Ensuring the output directory is clean"
                 sh 'rm -rf dotnet_ci' 
-                // Publish the build artifacts into the 'dotnet_ci' directory
+                echo "Publishing the build artifacts into the 'dotnet_ci' directory"
                 sh 'dotnet publish -c Release -o dotnet_ci'
                 sh 'dotnet test --no-build'
             }
@@ -17,15 +16,15 @@ pipeline {
     
     post {
         success {
+
             script {
                 def buildDir = "/opt/dotnet_builds/build_${env.BUILD_NUMBER}"
                 echo "Storing build artifacts in: ${buildDir}"
                 
-                // Create the target directory
+                echo "Creating the target directory"
                 sh "mkdir -p ${buildDir}"
                 
-                // Copy artifacts from Jenkins workspace to the versioned directory
-                // We copy the contents of 'dotnet_ci'
+                echo "Copying artifacts from Jenkins workspace to the versioned directory"
                 sh "cp -r dotnet_ci/* ${buildDir}/"
                 
                 //echo "Artifacts copied to external directory. Triggering CD job."
