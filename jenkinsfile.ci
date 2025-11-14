@@ -36,7 +36,7 @@ pipeline {
             }
 
             emailext (
-                subject: "✅ SUCCESS: Jenkins Build #${env.BUILD_NUMBER} (${env.JOB_NAME})",
+                subject: "SUCCESS: Jenkins Build #${env.BUILD_NUMBER} (${env.JOB_NAME})",
                 body: """
                     <p>The build ${env.BUILD_NUMBER} was successful.</p>
                     <p>Project: ${env.JOB_NAME}</p>
@@ -47,7 +47,7 @@ pipeline {
         }
         failure{
              emailext (
-                subject: "✅ SUCCESS: Jenkins Build #${env.BUILD_NUMBER} (${env.JOB_NAME})",
+                subject: "SUCCESS: Jenkins Build #${env.BUILD_NUMBER} (${env.JOB_NAME})",
                 body: """
                     <p>The build ${env.BUILD_NUMBER} failed.</p>
                     <p>Project: ${env.JOB_NAME}</p>
@@ -59,7 +59,7 @@ pipeline {
         }
         aborted{
             emailext (
-                subject: "✅ SUCCESS: Jenkins Build #${env.BUILD_NUMBER} (${env.JOB_NAME})",
+                subject: "SUCCESS: Jenkins Build #${env.BUILD_NUMBER} (${env.JOB_NAME})",
                 body: """
                     <p>The build ${env.BUILD_NUMBER} was aborted.</p>
                     <p>Project: ${env.JOB_NAME}</p>
