@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     stages {
-        stage('Build, Test, and Store Artifacts (Develop Branch)') {
-            // This stage runs ONLY when we are building the 'develop' branch itself (not an MR to it)
+        stage('Build, Test, and Store Artifacts (feature Branch)') {
+            // This stage runs ONLY when we are building the 'feature' branch itself (not an MR to it)
             when {
-                branch 'develop'
+                branch 'feature'
                 // Ensure it's not a Merge Request context, only a standard branch push
                 expression { env.GITLAB_OBJECT_KIND != 'merge_request' }
             }
