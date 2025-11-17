@@ -85,12 +85,12 @@ def deployArtifacts() {
 
 // Standard build flow fallback
 def standardBuild() {
-    stage('Standard Build and Test') {
-        steps {
+    //stage('Standard Build and Test') {
+       // steps {
             echo "Running standard build for branch: ${env.BRANCH_NAME}"
             checkout scm
             sh 'dotnet build mydotnetapp.csproj'
             sh 'dotnet test mydotnetapp.Tests.csproj'
-        }
-    }
+       // }
+    //}
 }
