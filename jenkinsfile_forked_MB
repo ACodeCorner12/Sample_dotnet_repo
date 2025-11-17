@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build, Test, and Store Artifacts (Develop Branch)') {
+            // This stage runs ONLY when we are building the 'develop' branch itself (not an MR to it)
+            when {
+                branch 'develop'
+                // Ensure it's not a Merge Request context, only a standard branch push
+                expression { env.GITLAB_OBJECT_KIND != 'merge_request' }
+            }
+            steps {
+                script {
+                    buildAndStoreArtifacts()
+                }
+            }
+        }
+
+        stage('Deploy to Production (Merge Request to Main)') {
+            // This stage runs ONLY when a Merge Request is targeting the 'main' branch
+            // This assumes the MR source is 'develop' based on your prompt, 
+            // but the condition focuses on the *target* branch 'main'.
+            when {
+                environment name: 'GITLAB_OBJECT_KIND', value: 'merge_request'
+                environment name: 'CHANGE_TARGET', value: 'main'
+            }
+            steps {
+                script {
+                    deployArtifacts()
+                }
+            }
+        }
+    }
+}
+
+// Function to handle the build, test, and artifact storage
+def buildAndStoreArtifacts() {
+    echo "--- FLOW: Standard push to develop branch detected ---"
+    echo "Building develop branch and storing artifacts in /opt/build_art_MB."
+
+    checkout scm // Checkout the develop branch code
+
+    // Define destination path
+    def buildDir = "/opt/build_art_MB"
+    sh "mkdir -p ${buildDir}"
+    sh "rm -rf ${buildDir}/*" // Clean previous artifacts
+
+    // Assuming dotnet build/publish commands
+    sh 'dotnet publish -c Release -o ${buildDir}'
+    sh 'dotnet test --no-build'
+
+    echo "Artifacts generated and stored in ${buildDir}"
+}
+
+// Function to handle the deployment operation
+def deployArtifacts() {
+    echo "--- FLOW: Deploy MR from develop to main detected ---"
+    echo "Deploying previously built artifacts to /var/www/dotnet_artifacts_MB"
+
+    def sourceDir = '/opt/build_art_MB' // Source of pre-built artifacts (from develop branch push)
+    def deployDir = '/var/www/dotnet_artifacts_MB' // The target directory for live deployment
+
+    // Note: This flow relies on artifacts existing from a previous 'develop' build job.
+    // In a robust CI/CD, you might use the Jenkins 'stash/unstash' feature or 
+    // the 'Copy Artifact' plugin to link the jobs explicitly.
+
+    sh "mkdir -p ${deployDir}"
+    sh "rm -rf ${deployDir}/*" // Cleaning the existing deployment directory
+            
+    // Copy artifacts
+    sh "cp -r ${sourceDir}/* ${deployDir}/"
+    echo "Deployment complete to ${deployDir}"
+}
