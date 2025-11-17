@@ -41,6 +41,8 @@ def buildAndStoreArtifacts() {
     checkout scm // Checkout the develop branch code
 
     // Assuming dotnet build/publish commands
+    echo "making sure the output dir is clean"
+    sh 'rm -rf sample_multibranch_feature'
     sh 'dotnet publish -c Release -o sample_multibranch_feature'
     sh 'dotnet test --no-build'
 
