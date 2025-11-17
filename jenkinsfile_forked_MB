@@ -46,7 +46,7 @@ def buildAndStoreArtifacts() {
     sh "rm -rf ${buildDir}/*" // Clean previous artifacts
 
     // Assuming dotnet build/publish commands
-    sh 'dotnet publish -c Release -o ${buildDir}'
+    sh 'dotnet publish -c Release -o sample_multibranch_feature'
     sh 'dotnet test --no-build'
 
     echo "Artifacts generated and stored in ${buildDir}"
