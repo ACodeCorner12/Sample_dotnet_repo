@@ -1,0 +1,96 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Main Flow Selector') {
+            steps {
+                script {
+                    // Scenario 1: MR from Forked Repo feature branch to Original Repo develop branch
+                    // env.CHANGE_FORK is set to the name of the fork owner/group
+                    // env.CHANGE_TARGET will be 'develop' (the target branch name)
+                    if (env.CHANGE_FORK != null && env.CHANGE_TARGET == 'develop') {
+                        echo "--- FLOW 1: Forked MR to develop branch detected ---"
+                        buildAndStoreArtifacts()
+                    } 
+                    // Scenario 2: MR/PR from Original Repo develop to Original Repo main
+                    // env.CHANGE_FORK is null. env.CHANGE_TARGET will be 'main'.
+                    else if (env.CHANGE_FORK == null && env.CHANGE_TARGET == 'main') {
+                        echo "--- FLOW 2: Deploy MR from develop to main detected ---"
+                        deployArtifacts()
+                    }
+                    // Fallback for standard branch builds that don't match the specific scenarios
+                    else {
+                        echo "--- FALLBACK: Standard branch build or other context ---"
+                        standardBuild()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Function to handle the build, virtual merge, and artifact storage
+def buildAndStoreArtifacts() {
+    stage('Build (Virtual Merge)') {
+        steps {
+            echo "Building MR from Forked Repo to Original develop."
+            // 'checkout scm' performs the virtual merge automatically as configured in Jenkins behaviors
+            checkout scm 
+
+            echo "Ensuring the output directory is clean"
+            sh 'rm -rf sample_multibranch' 
+
+            
+            // Assuming dotnet build/publish commands
+            sh 'dotnet publish -c Release -o sample_multibranch'
+            sh 'dotnet test --no-build'
+
+            // Define destination path using BUILD_NUMBER
+            def buildDir = "/opt/build_art_MB"
+            sh "mkdir -p ${buildDir}"
+            
+            // Copy artifacts to the build-specific directory
+            sh "cp -r sample_multibranch/* build_art_MB/"
+            echo "Artifacts generated and copied to ${buildDir}"
+        }
+    }
+}
+
+// Function to handle the deployment operation
+def deployArtifacts() {
+    stage('Deploy to www directory') {
+        steps {
+            
+            DEPLOY_DIR = '/var/www/dotnet_artifacts_MB' // The target directory for live deployment
+
+             
+            // Ensure the deployment directory exists
+            sh "mkdir -p ${DEPLOY_DIR}"
+
+            echo "Cleaning the existing deployment directory"
+            sh "rm -rf ${DEPLOY_DIR}/*"
+
+
+
+            echo "Deploying the latest built artifacts from /opt/builds to /var/www/dotnet_artifacts_MB"
+            // This copies artifacts from a *previous* build (likely the last successful 'develop' or 'main' build)
+            // Note: You must ensure you have a mechanism to know which specific build number to deploy.
+            // For simplicity in this example, we assume /opt/builds is managed or we use a stable location.
+            
+            sh 'cp -r /opt/build_art_MB/* /var/www/dotnet_artifacts_MB/'
+            echo "Deployment complete to /var/www/dotnet_artifacts"
+        }
+    }
+}
+
+// Standard build flow fallback
+def standardBuild() {
+    stage('Standard Build and Test') {
+        steps {
+            echo "Running standard build for branch: ${env.BRANCH_NAME}"
+            checkout scm
+            sh 'dotnet build mydotnetapp.csproj'
+            sh 'dotnet test mydotnetapp.Tests.csproj'
+        }
+    }
+}
