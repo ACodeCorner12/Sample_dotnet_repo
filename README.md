@@ -1,5 +1,5 @@
 # dotnet_sample
-this is a sample dotnet project
+this is a sample dotnet project, which is forked from the original repo
 
 
 
