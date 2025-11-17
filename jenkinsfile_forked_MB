@@ -40,14 +40,15 @@ def buildAndStoreArtifacts() {
 
     checkout scm // Checkout the develop branch code
 
+    // Assuming dotnet build/publish commands
+    sh 'dotnet publish -c Release -o sample_multibranch_feature'
+    sh 'dotnet test --no-build'
+
     // Define destination path
     def buildDir = "/opt/build_art_MB"
     sh "mkdir -p ${buildDir}"
     sh "rm -rf ${buildDir}/*" // Clean previous artifacts
-
-    // Assuming dotnet build/publish commands
-    sh 'dotnet publish -c Release -o ${buildDir}'
-    sh 'dotnet test --no-build'
+    sh "cp -r sample_multibranch_feature/* ${buildDir}/"
 
     echo "Artifacts generated and stored in ${buildDir}"
 }
