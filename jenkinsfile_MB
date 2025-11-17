@@ -89,8 +89,8 @@ def standardBuild() {
        // steps {
             echo "Running standard build for branch: ${env.BRANCH_NAME}"
             checkout scm
-            sh 'dotnet build mydotnetapp.csproj'
-            sh 'dotnet test mydotnetapp.Tests.csproj'
+            sh 'dotnet build'
+            sh 'dotnet test --no-build'
        // }
     //}
 }
