@@ -40,18 +40,18 @@ def buildAndStoreArtifacts() {
             echo "Ensuring the output directory is clean"
             sh 'rm -rf sample_multibranch' 
 
-            
-            // Assuming dotnet build/publish commands
-            sh 'dotnet publish -c Release -o sample_multibranch'
-            sh 'dotnet test --no-build'
-
             // Define destination path using BUILD_NUMBER
             def buildDir = "/opt/build_art_MB"
             sh "mkdir -p ${buildDir}"
+
+            // Assuming dotnet build/publish commands
+            echo "building in the /opt directory itself"
+            sh 'dotnet publish -c Release -o ${buildDir}'
+            sh 'dotnet test --no-build'
             
             // Copy artifacts to the build-specific directory
-            sh "cp -r sample_multibranch/* build_art_MB/"
-            echo "Artifacts generated and copied to ${buildDir}"
+            //sh "cp -r sample_multibranch/* build_art_MB/"
+            //echo "Artifacts generated and copied to ${buildDir}"
         }
     }
 }
