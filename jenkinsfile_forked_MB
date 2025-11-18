@@ -5,7 +5,7 @@ pipeline {
         stage('Build, Test, and Store Artifacts (feature Branch)') {
             // This stage runs ONLY when we are building the 'feature' branch itself (not an MR to it)
             when {
-                branch 'develop'
+                branch 'develop-a'
                 // Ensure it's not a Merge Request context, only a standard branch push
                 expression { env.GITLAB_OBJECT_KIND != 'merge_request' }
             }
@@ -42,15 +42,15 @@ def buildAndStoreArtifacts() {
 
     // Assuming dotnet build/publish commands
     echo "making sure the output dir is clean"
-    sh 'rm -rf sample_multibranch_develop'
-    sh 'dotnet publish -c Release -o sample_multibranch_develop'
+    sh 'rm -rf sample_multibranch_develop-a'
+    sh 'dotnet publish -c Release -o sample_multibranch_develop-a'
     sh 'dotnet test --no-build'
 
     // Define destination path
     def buildDir = "/opt/build_art_MB"
-    sh "mkdir -p ${buildDir}"
     sh "rm -rf ${buildDir}/*" // Clean previous artifacts
-    sh "cp -r sample_multibranch_develop/* ${buildDir}/"
+    sh "mkdir -p ${buildDir}"
+    sh "cp -r sample_multibranch_develop-a/* ${buildDir}/"
 
     echo "Artifacts generated and stored in ${buildDir}"
 }
@@ -67,8 +67,9 @@ def deployArtifacts() {
     // In a robust CI/CD, you might use the Jenkins 'stash/unstash' feature or 
     // the 'Copy Artifact' plugin to link the jobs explicitly.
 
-    sh "mkdir -p ${deployDir}"
     sh "rm -rf ${deployDir}/*" // Cleaning the existing deployment directory
+    sh "mkdir -p ${deployDir}"
+    
             
     // Copy artifacts
     sh "cp -r ${sourceDir}/* ${deployDir}/"
