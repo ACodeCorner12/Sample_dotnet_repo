@@ -5,7 +5,7 @@ pipeline {
         stage('Build, Test, and Store Artifacts (feature Branch)') {
             // This stage runs ONLY when we are building the 'feature' branch itself (not an MR to it)
             when {
-                branch 'feature'
+                branch 'develop'
                 // Ensure it's not a Merge Request context, only a standard branch push
                 expression { env.GITLAB_OBJECT_KIND != 'merge_request' }
             }
@@ -42,15 +42,15 @@ def buildAndStoreArtifacts() {
 
     // Assuming dotnet build/publish commands
     echo "making sure the output dir is clean"
-    sh 'rm -rf sample_multibranch_feature'
-    sh 'dotnet publish -c Release -o sample_multibranch_feature'
+    sh 'rm -rf sample_multibranch_develop'
+    sh 'dotnet publish -c Release -o sample_multibranch_develop'
     sh 'dotnet test --no-build'
 
     // Define destination path
     def buildDir = "/opt/build_art_MB"
     sh "mkdir -p ${buildDir}"
     sh "rm -rf ${buildDir}/*" // Clean previous artifacts
-    sh "cp -r sample_multibranch_feature/* ${buildDir}/"
+    sh "cp -r sample_multibranch_develop/* ${buildDir}/"
 
     echo "Artifacts generated and stored in ${buildDir}"
 }
