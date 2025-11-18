@@ -21,8 +21,9 @@ pipeline {
             // This assumes the MR source is 'develop' based on your prompt, 
             // but the condition focuses on the *target* branch 'main'.
             when {
-                environment name: 'GITLAB_OBJECT_KIND', value: 'merge_request'
-                environment name: 'CHANGE_TARGET', value: 'main'
+                 expression { env.GITLAB_OBJECT_KIND == 'merge_request' && env.CHANGE_TARGET == 'main' }
+                //environment name: 'GITLAB_OBJECT_KIND', value: 'merge_request'
+                //environment name: 'CHANGE_TARGET', value: 'main'
             }
             steps {
                 script {
