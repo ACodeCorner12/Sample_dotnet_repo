@@ -1,6 +1,8 @@
 # dotnet_sample
+this is a sample dotnet project, which is forked from the original repo...
+This does not contain the same jenkinsfile as the original repo
 
-
+sdfghjk
 
 ## Getting started
 
