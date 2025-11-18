@@ -72,7 +72,7 @@ pipeline {
                 """,
                 to: 'anuragsaha.216009@gmail.com'
             )
-            echo "CI pipeline build was aborted."
+            echo "CI pipeline build was aborted."  //
         }
     }
 }
