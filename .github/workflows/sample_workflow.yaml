@@ -8,12 +8,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      #- name: "Check out repository"
-       # uses: actions/checkout@v3
-      - name: "Build project"
-        run: "echo 'Building code...'"
-      - name: Build DotNet
-        uses: Elskom/build-dotnet@v1.1.1
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      # Step 1: Install the necessary .NET SDK version
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.304' # Specify your required version (e.g., '6.0.x', 'latest')
+
+      # Step 2: Restore project dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Step 3: Run the build command
+      - name: Build the project
+        run: dotnet build --configuration Release --no-restore
   verify:
     runs-on: ubuntu-latest
     steps:
