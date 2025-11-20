@@ -15,13 +15,13 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.304' # Specify your required version (e.g., '6.0.x', 'latest')
+          dotnet-version: '9.0.304'
 
       # Step 2: Restore project dependencies
       - name: Restore dependencies
         run: dotnet restore
 
-      # Step 3: Run the build command
+      # Step 3: build
       - name: Build the project
         run: dotnet build --configuration Release --no-restore
   verify:
